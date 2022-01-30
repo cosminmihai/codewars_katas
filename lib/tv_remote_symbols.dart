@@ -5,37 +5,37 @@ import 'package:test/test.dart';
 
 void main() {
   test('Example', () {
-    expect(tv_remote('Too Easy?'), equals(71));
+    expect(tvRemote('Too Easy?'), equals(71));
   });
 
   test('Lower', () {
-    expect(tv_remote('does'), equals(16));
-    expect(tv_remote('your'), equals(21));
-    expect(tv_remote('solution'), equals(33));
-    expect(tv_remote('work'), equals(18));
-    expect(tv_remote('for'), equals(12));
-    expect(tv_remote('these'), equals(27));
-    expect(tv_remote('words'), equals(23));
+    expect(tvRemote('does'), equals(16));
+    expect(tvRemote('your'), equals(21));
+    expect(tvRemote('solution'), equals(33));
+    expect(tvRemote('work'), equals(18));
+    expect(tvRemote('for'), equals(12));
+    expect(tvRemote('these'), equals(27));
+    expect(tvRemote('words'), equals(23));
   });
 
   test('Upper', () {
-    expect(tv_remote('DOES'), equals(19));
-    expect(tv_remote('YOUR'), equals(22));
-    expect(tv_remote('SOLUTION'), equals(34));
-    expect(tv_remote('WORK'), equals(19));
-    expect(tv_remote('FOR'), equals(15));
-    expect(tv_remote('THESE'), equals(28));
-    expect(tv_remote('WORDS'), equals(24));
+    expect(tvRemote('DOES'), equals(19));
+    expect(tvRemote('YOUR'), equals(22));
+    expect(tvRemote('SOLUTION'), equals(34));
+    expect(tvRemote('WORK'), equals(19));
+    expect(tvRemote('FOR'), equals(15));
+    expect(tvRemote('THESE'), equals(28));
+    expect(tvRemote('WORDS'), equals(24));
   });
 
   test('Symbols', () {
-    expect(tv_remote('^does^'), equals(33));
-    expect(tv_remote('\$your\$'), equals(53));
-    expect(tv_remote('#solution#'), equals(49));
-    expect(tv_remote('\u00bfwork\u00bf'), equals(34));
-    expect(tv_remote('{for}'), equals(38));
-    expect(tv_remote('\u00a3these\u00a3'), equals(57));
-    expect(tv_remote('?symbols?'), equals(54));
+    expect(tvRemote('^does^'), equals(33));
+    expect(tvRemote('\$your\$'), equals(53));
+    expect(tvRemote('#solution#'), equals(49));
+    expect(tvRemote('\u00bfwork\u00bf'), equals(34));
+    expect(tvRemote('{for}'), equals(38));
+    expect(tvRemote('\u00a3these\u00a3'), equals(57));
+    expect(tvRemote('?symbols?'), equals(54));
   });
 }
 
@@ -73,18 +73,16 @@ final List<List<String>> symbols = <List<String>>[
 
 KeyboardType selectedKeyboard = KeyboardType.alphaNumeric;
 String previousSymbol = alphaNumeric[0][0]; // Starts with 'a'
-KeyboardType previousKeyboard = selectedKeyboard;
 
-int tv_remote(String word) {
+int tvRemote(String word) {
   // Refresh for every test.
   selectedKeyboard = KeyboardType.alphaNumeric;
-  previousKeyboard = selectedKeyboard;
   previousSymbol = alphaNumeric[0][0];
 
   int totalSteps = 0;
   for (int index = 0; index < word.length; index++) {
     final String key = word[index];
-    if (isCommonSymbols(key)) {
+    if (isCommonSymbol(key)) {
       totalSteps += calculateStepsAndPress(previousSymbol, key);
       previousSymbol = key;
     } else {
@@ -95,21 +93,41 @@ int tv_remote(String word) {
   return totalSteps;
 }
 
+int calculateStepsAndPress(String startingSymbol, String endingSymbol) {
+  final List<int> firstCoordinate = getCoordinates(startingSymbol);
+  final List<int> secondCoordinate = getCoordinates(endingSymbol);
+
+  final int rowDifference = (firstCoordinate[0] - secondCoordinate[0]).abs();
+  final int columnDifference = (firstCoordinate[1] - secondCoordinate[1]).abs();
+  final int rowSteps = min(rowDifference, 6 - rowDifference);
+  final int columnSteps = min(columnDifference, 8 - columnDifference);
+  return rowSteps + columnSteps + 1;
+}
+
+bool isCommonSymbol(String symbol) {
+  return symbol == '/' || symbol == '.' || symbol == '_' || symbol == ' ' || symbol == '@';
+}
+
+bool isAlphaNumeric(String symbol) {
+  return alphaNumeric.any((List<String> element) => element.contains(symbol)) ||
+      upperAlphaNumeric.any((List<String> element) => element.contains(symbol));
+}
+
 int handleAlphaNumeric(String letter) {
   int steps = 0;
   if (isUpperCase(letter)) {
     if (selectedKeyboard == KeyboardType.alphaNumeric) {
-      steps += pressShift(symbol: previousSymbol);
+      steps += pressShift();
     } else if (selectedKeyboard == KeyboardType.symbolic) {
-      steps += pressShift(symbol: previousSymbol, plus: 1);
+      steps += pressShift(plus: 1);
     }
 
     selectedKeyboard = KeyboardType.alphaNumericUpperCase;
   } else if (isLowerCase(letter)) {
     if (selectedKeyboard == KeyboardType.alphaNumericUpperCase) {
-      steps += pressShift(symbol: previousSymbol, plus: 1);
+      steps += pressShift(plus: 1);
     } else if (selectedKeyboard == KeyboardType.symbolic) {
-      steps += pressShift(symbol: previousSymbol);
+      steps += pressShift();
     }
 
     selectedKeyboard = KeyboardType.alphaNumeric;
@@ -129,11 +147,9 @@ int handleAlphaNumeric(String letter) {
 int handleSymbol(String symbol) {
   int steps = 0;
   if (selectedKeyboard == KeyboardType.alphaNumeric) {
-    steps += calculateStepsAndPress(previousSymbol, shift) + 1;
-    previousSymbol = shift;
+    steps += pressShift(plus: 1);
   } else if (selectedKeyboard == KeyboardType.alphaNumericUpperCase) {
-    steps += calculateStepsAndPress(previousSymbol, shift);
-    previousSymbol = shift;
+    steps += pressShift();
   }
 
   selectedKeyboard = KeyboardType.symbolic;
@@ -142,9 +158,17 @@ int handleSymbol(String symbol) {
   return steps;
 }
 
-bool isAlphaNumeric(String symbol) {
-  return alphaNumeric.any((List<String> element) => element.contains(symbol)) ||
-      upperAlphaNumeric.any((List<String> element) => element.contains(symbol));
+List<int> getCoordinates(String symbol) {
+  final List<List<String>> keyboard = getKeyboardByType(selectedKeyboard);
+  final int row = keyboard.indexWhere((List<String> row) => row.contains(symbol));
+  final int column = keyboard[row].indexOf(symbol);
+  return <int>[row, column];
+}
+
+int pressShift({int plus = 0}) {
+  final int steps = calculateStepsAndPress(previousSymbol, shift) + plus;
+  previousSymbol = shift;
+  return steps;
 }
 
 bool isUpperCase(String symbol) => symbol.startsWith(RegExp('[A-Z]'));
@@ -155,30 +179,6 @@ bool isNumber(String symbol) => symbol.contains(RegExp('[0-9]'));
 
 bool isSymbol(String symbol) => symbols.any((List<String> element) => element.contains(symbol));
 
-int pressShift({String symbol = '', int plus = 0}) {
-  final int steps = calculateStepsAndPress(previousSymbol, shift) + plus;
-  previousSymbol = shift;
-  return steps;
-}
-
-int calculateStepsAndPress(String startingSymbol, String endingSymbol) {
-  final List<int> firstCoordinate = getCoordinates(startingSymbol);
-  final List<int> secondCoordinate = getCoordinates(endingSymbol);
-
-  final int rowDifference = (firstCoordinate[0] - secondCoordinate[0]).abs();
-  final int columnDifference = (firstCoordinate[1] - secondCoordinate[1]).abs();
-  final int rowSteps = min(rowDifference, 6 - rowDifference);
-  final int columnSteps = min(columnDifference, 8 - columnDifference);
-  return rowSteps + columnSteps + 1;
-}
-
-List<int> getCoordinates(String symbol) {
-  final List<List<String>> keyboard = getKeyboardByType(selectedKeyboard);
-  final int row = keyboard.indexWhere((List<String> row) => row.contains(symbol));
-  final int column = keyboard[row].indexOf(symbol);
-  return <int>[row, column];
-}
-
 List<List<String>> getKeyboardByType(KeyboardType type) {
   switch (type) {
     case KeyboardType.alphaNumeric:
@@ -188,8 +188,4 @@ List<List<String>> getKeyboardByType(KeyboardType type) {
     case KeyboardType.symbolic:
       return symbols;
   }
-}
-
-bool isCommonSymbols(String symbol) {
-  return symbol == '/' || symbol == '.' || symbol == '_' || symbol == ' ' || symbol == '@';
 }
