@@ -1,159 +1,195 @@
 /// TV Remote (symbols)
-
-// Background
-// My TV remote control has arrow buttons and an OK button.
-//
-// I can use these to move a "cursor" on a logical screen keyboard to type words...
-//
-// Keyboard
-// The screen "keyboard" layouts look like this
-//
-// Keypad Mode 1 = alpha-numeric (lowercase)	Keypad Mode 3 = symbols
-// a	b	c	d	e	1	2	3
-// f	g	h	i	j	4	5	6
-// k	l	m	n	o	7	8	9
-// p	q	r	s	t	.	@	0
-// u	v	w	x	y	z	_	/
-// aA#	SP
-//
-// ^	~	?	!	'	"	(	)
-// -	:	;	+	&	%	*	=
-// <	>	€	£	$	¥	¤	\
-// [	]	{	}	,	.	@	§
-// #	¿	¡				_	/
-// aA#	SP
-// aA# is the SHIFT key. Pressing this key cycles through THREE keypad modes.
-//
-// Mode 1 = alpha-numeric keypad with lowercase alpha (as depicted above)
-//
-// Mode 2 = alpha-numeric keypad with UPPERCASE alpha
-//
-// Mode 3 = symbolic keypad (as depicted above)
-//
-// SP is the space character
-//
-// The other (solid fill) keys in the bottom row have no function
-//
-// Special Symbols
-// For your convenience, here are Unicode values for the less obvious symbols of the Mode 3 keypad
-//
-// ¡ = U-00A1	£ = U-00A3	¤ = U-00A4	¥ = U-00A5
-// § = U-00A7	¿ = U-00BF	€ = U-20AC
-// Kata task
-// How many button presses on my remote are required to type the given words?
-//
-// Notes
-// The cursor always starts on the letter a (top left)
-// The initial keypad layout is Mode 1
-// Remember to also press OK to "accept" each letter
-// Take the shortest route from one letter to the next
-// The cursor wraps, so as it moves off one edge it will reappear on the opposite edge
-// Although the blank keys have no function, you may navigate through them if you want to
-// Spaces may occur anywhere in the words string
-// Do not press the SHIFT key until you need to. For example, with the word e.Z,
-// the SHIFT change happens after the . is pressed (not before). In other words,
-// do not try to optimize total key presses by pressing SHIFT early.
-//
-// Example
-// words = Too Easy?
-//
-// T => a-aA#-OK-U-V-W-X-Y-T-OK = 9
-// o => T-Y-X-W-V-U-aA#-OK-OK-a-b-c-d-e-j-o-OK = 16
-// o => o-OK = 1
-// space => o-n-m-l-q-v-SP-OK = 7
-// E => SP-aA#-OK-A-3-2-1--E-OK = 8
-// a => E-1-2-3-A-aA-OK-OK-a-OK = 9
-// s => a-b-c-d-i-n-s-OK = 7
-// y => s-x-y-OK = 3
-// ? => y-x-w-v-u-aA#-OK-OK-^-~-?-OK = 11
-// Answer = 9 + 16 + 1 + 7 + 8 + 9 + 7 + 3 + 11 = 71
+import 'dart:math';
 
 import 'package:test/test.dart';
 
 void main() {
   test('Example', () {
-    expect(tvRemote('Too Easy?'), equals(71));
+    expect(tv_remote('Too Easy?'), equals(71));
   });
 
-  /* test('Lower', () {
-    expect(tvRemote('does'), equals(16));
-    expect(tvRemote('your'), equals(21));
-    expect(tvRemote('solution'), equals(33));
-    expect(tvRemote('work'), equals(18));
-    expect(tvRemote('for'), equals(12));
-    expect(tvRemote('these'), equals(27));
-    expect(tvRemote('words'), equals(23));
+  test('Lower', () {
+    expect(tv_remote('does'), equals(16));
+    expect(tv_remote('your'), equals(21));
+    expect(tv_remote('solution'), equals(33));
+    expect(tv_remote('work'), equals(18));
+    expect(tv_remote('for'), equals(12));
+    expect(tv_remote('these'), equals(27));
+    expect(tv_remote('words'), equals(23));
   });
 
   test('Upper', () {
-    expect(tvRemote('DOES'), equals(19));
-    expect(tvRemote('YOUR'), equals(22));
-    expect(tvRemote('SOLUTION'), equals(34));
-    expect(tvRemote('WORK'), equals(19));
-    expect(tvRemote('FOR'), equals(15));
-    expect(tvRemote('THESE'), equals(28));
-    expect(tvRemote('WORDS'), equals(24));
+    expect(tv_remote('DOES'), equals(19));
+    expect(tv_remote('YOUR'), equals(22));
+    expect(tv_remote('SOLUTION'), equals(34));
+    expect(tv_remote('WORK'), equals(19));
+    expect(tv_remote('FOR'), equals(15));
+    expect(tv_remote('THESE'), equals(28));
+    expect(tv_remote('WORDS'), equals(24));
   });
 
   test('Symbols', () {
-    expect(tvRemote('^does^'), equals(33));
-    expect(tvRemote('\$your\$'), equals(53));
-    expect(tvRemote('#solution#'), equals(49));
-    expect(tvRemote('\u00bfwork\u00bf'), equals(34));
-    expect(tvRemote('{for}'), equals(38));
-    expect(tvRemote('\u00a3these\u00a3'), equals(57));
-    expect(tvRemote('?symbols?'), equals(54));
-  });*/
+    expect(tv_remote('^does^'), equals(33));
+    expect(tv_remote('\$your\$'), equals(53));
+    expect(tv_remote('#solution#'), equals(49));
+    expect(tv_remote('\u00bfwork\u00bf'), equals(34));
+    expect(tv_remote('{for}'), equals(38));
+    expect(tv_remote('\u00a3these\u00a3'), equals(57));
+    expect(tv_remote('?symbols?'), equals(54));
+  });
 }
 
-enum KeyboardType { alphaNumeric, alphaNumericUppercase, symbolic }
+enum KeyboardType { alphaNumeric, alphaNumericUpperCase, symbolic }
 
-int tvRemote(String word) {
-  // Your code here!!
+const String shift = 'aA#';
 
-  return 0;
-}
-
-final List<String> alphaNumeric = <String>[
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  '1',
-  '2',
-  '3',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  '4',
-  '5',
-  '6',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  '7',
-  '8',
-  '9',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  '.',
-  '@',
-  '0',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-  '_',
-  '/aA#',
-  'SP'
+// -1 represents the empty space
+List<List<String>> alphaNumeric = <List<String>>[
+  <String>['a', 'b', 'c', 'd', 'e', '1', '2', '3'],
+  <String>['f', 'g', 'h', 'i', 'j', '4', '5', '6'],
+  <String>['k', 'l', 'm', 'n', 'o', '7', '8', '9'],
+  <String>['p', 'q', 'r', 's', 't', '.', '@', '0'],
+  <String>['u', 'v', 'w', 'x', 'y', 'z', '_', '/'],
+  <String>[shift, ' ', '-1', '-1', '-1', '-1', '-1', '-1'],
 ];
+
+List<List<String>> upperAlphaNumeric = <List<String>>[
+  <String>['A', 'B', 'C', 'D', 'E', '1', '2', '3'],
+  <String>['F', 'G', 'H', 'I', 'J', '4', '5', '6'],
+  <String>['K', 'L', 'M', 'N', 'O', '7', '8', '9'],
+  <String>['P', 'Q', 'R', 'S', 'T', '.', '@', '0'],
+  <String>['U', 'V', 'W', 'X', 'Y', 'Z', '_', '/'],
+  <String>[shift, ' ', '-1', '-1', '-1', '-1', '-1', '-1'],
+];
+
+final List<List<String>> symbols = <List<String>>[
+  <String>['^', '~', '?', '!', "'", '"', '(', ')'],
+  <String>['-', ':', ';', '+', '&', '%', '*', '='],
+  <String>['<', '>', '€', '£', '\$', '¥', '¤', '\\'],
+  <String>['[', ']', '{', '}', ',', '.', '@', '§'],
+  <String>['#', '¿', '¡', '-1', '-1', '-1', '_', '/'],
+  <String>[shift, ' ', '-1', '-1', '-1', '-1', '-1', '-1'],
+];
+
+KeyboardType selectedKeyboard = KeyboardType.alphaNumeric;
+String previousSymbol = alphaNumeric[0][0]; // Starts with 'a'
+KeyboardType previousKeyboard = selectedKeyboard;
+
+int tv_remote(String word) {
+  // Refresh for every test.
+  selectedKeyboard = KeyboardType.alphaNumeric;
+  previousKeyboard = selectedKeyboard;
+  previousSymbol = alphaNumeric[0][0];
+
+  int totalSteps = 0;
+  for (int index = 0; index < word.length; index++) {
+    final String key = word[index];
+    if (isCommonSymbols(key)) {
+      totalSteps += calculateStepsAndPress(previousSymbol, key);
+      previousSymbol = key;
+    } else {
+      totalSteps += isAlphaNumeric(key) ? handleAlphaNumeric(key) : handleSymbol(key);
+    }
+  }
+
+  return totalSteps;
+}
+
+int handleAlphaNumeric(String letter) {
+  int steps = 0;
+  if (isUpperCase(letter)) {
+    if (selectedKeyboard == KeyboardType.alphaNumeric) {
+      steps += pressShift(symbol: previousSymbol);
+    } else if (selectedKeyboard == KeyboardType.symbolic) {
+      steps += pressShift(symbol: previousSymbol, plus: 1);
+    }
+
+    selectedKeyboard = KeyboardType.alphaNumericUpperCase;
+  } else if (isLowerCase(letter)) {
+    if (selectedKeyboard == KeyboardType.alphaNumericUpperCase) {
+      steps += pressShift(symbol: previousSymbol, plus: 1);
+    } else if (selectedKeyboard == KeyboardType.symbolic) {
+      steps += pressShift(symbol: previousSymbol);
+    }
+
+    selectedKeyboard = KeyboardType.alphaNumeric;
+  } else {
+    if (selectedKeyboard == KeyboardType.symbolic) {
+      steps += calculateStepsAndPress(previousSymbol, shift);
+      previousSymbol = shift;
+      selectedKeyboard = KeyboardType.alphaNumeric;
+    }
+  }
+
+  steps += calculateStepsAndPress(previousSymbol, letter);
+  previousSymbol = letter;
+  return steps;
+}
+
+int handleSymbol(String symbol) {
+  int steps = 0;
+  if (selectedKeyboard == KeyboardType.alphaNumeric) {
+    steps += calculateStepsAndPress(previousSymbol, shift) + 1;
+    previousSymbol = shift;
+  } else if (selectedKeyboard == KeyboardType.alphaNumericUpperCase) {
+    steps += calculateStepsAndPress(previousSymbol, shift);
+    previousSymbol = shift;
+  }
+
+  selectedKeyboard = KeyboardType.symbolic;
+  steps += calculateStepsAndPress(previousSymbol, symbol);
+  previousSymbol = symbol;
+  return steps;
+}
+
+bool isAlphaNumeric(String symbol) {
+  return alphaNumeric.any((List<String> element) => element.contains(symbol)) ||
+      upperAlphaNumeric.any((List<String> element) => element.contains(symbol));
+}
+
+bool isUpperCase(String symbol) => symbol.startsWith(RegExp('[A-Z]'));
+
+bool isLowerCase(String symbol) => symbol.startsWith(RegExp('[a-z]'));
+
+bool isNumber(String symbol) => symbol.contains(RegExp('[0-9]'));
+
+bool isSymbol(String symbol) => symbols.any((List<String> element) => element.contains(symbol));
+
+int pressShift({String symbol = '', int plus = 0}) {
+  final int steps = calculateStepsAndPress(previousSymbol, shift) + plus;
+  previousSymbol = shift;
+  return steps;
+}
+
+int calculateStepsAndPress(String startingSymbol, String endingSymbol) {
+  final List<int> firstCoordinate = getCoordinates(startingSymbol);
+  final List<int> secondCoordinate = getCoordinates(endingSymbol);
+
+  final int rowDifference = (firstCoordinate[0] - secondCoordinate[0]).abs();
+  final int columnDifference = (firstCoordinate[1] - secondCoordinate[1]).abs();
+  final int rowSteps = min(rowDifference, 6 - rowDifference);
+  final int columnSteps = min(columnDifference, 8 - columnDifference);
+  return rowSteps + columnSteps + 1;
+}
+
+List<int> getCoordinates(String symbol) {
+  final List<List<String>> keyboard = getKeyboardByType(selectedKeyboard);
+  final int row = keyboard.indexWhere((List<String> row) => row.contains(symbol));
+  final int column = keyboard[row].indexOf(symbol);
+  return <int>[row, column];
+}
+
+List<List<String>> getKeyboardByType(KeyboardType type) {
+  switch (type) {
+    case KeyboardType.alphaNumeric:
+      return alphaNumeric;
+    case KeyboardType.alphaNumericUpperCase:
+      return upperAlphaNumeric;
+    case KeyboardType.symbolic:
+      return symbols;
+  }
+}
+
+bool isCommonSymbols(String symbol) {
+  return symbol == '/' || symbol == '.' || symbol == '_' || symbol == ' ' || symbol == '@';
+}
