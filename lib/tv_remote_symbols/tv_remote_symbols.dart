@@ -1,4 +1,3 @@
-/// TV Remote (symbols)
 import 'dart:math';
 
 import 'package:test/test.dart';
@@ -174,10 +173,6 @@ int pressShift({int plus = 0}) {
 bool isUpperCase(String symbol) => symbol.startsWith(RegExp('[A-Z]'));
 
 bool isLowerCase(String symbol) => symbol.startsWith(RegExp('[a-z]'));
-
-bool isNumber(String symbol) => symbol.contains(RegExp('[0-9]'));
-
-bool isSymbol(String symbol) => symbols.any((List<String> element) => element.contains(symbol));
 
 List<List<String>> getKeyboardByType(KeyboardType type) {
   switch (type) {
