@@ -2,10 +2,6 @@
 
 ---
 
-# Hint
-
-This Kata is an extension of the earlier ones in this series. Completing those first will make this task easier.
-
 # Background
 
 My TV remote control has arrow buttons and an `OK` button.
